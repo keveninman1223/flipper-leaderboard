@@ -128,7 +128,8 @@ const App = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(to bottom right, #f8fafc, #e2e8f0)",
+        background:
+          "linear-gradient(to bottom right, var(--color-bg), var(--color-border))",
         padding: "24px",
       }}
     >
@@ -137,26 +138,12 @@ const App = () => {
         {/* Changed from 1280px */}
         <div style={{ marginBottom: "32px" }}>
           <button
+            className="btn btn-outline"
             onClick={() => setSelectedLocation(null)}
             style={{
               padding: "8px 16px",
-              background: "white",
-              color: "#2563eb",
-              border: "2px solid #2563eb",
-              borderRadius: "6px",
               fontSize: "14px",
-              fontWeight: "600",
-              cursor: "pointer",
               marginBottom: "16px",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#2563eb";
-              e.currentTarget.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "white";
-              e.currentTarget.style.color = "#2563eb";
             }}
           >
             ← Back to Home
@@ -165,22 +152,28 @@ const App = () => {
             style={{
               fontSize: "36px",
               fontWeight: "bold",
-              color: "#1e293b",
+              color: "var(--color-text)",
               marginBottom: "8px",
             }}
           >
             📊 Bakersfield Flipper Leaderboard
           </h1>
-          <p style={{ fontSize: "18px", color: "#64748b" }}>
+          <p style={{ fontSize: "18px", color: "var(--color-text-muted)" }}>
             Top real estate investors ranked by flip activity
           </p>
-          <p style={{ fontSize: "14px", color: "#94a3b8", marginTop: "4px" }}>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-text-subtle)",
+              marginTop: "4px",
+            }}
+          >
             Data: October 2025 • Kern County, CA
           </p>
         </div>
         <div
           style={{
-            background: "white",
+            background: "var(--color-surface)",
             borderRadius: "8px",
             boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
             overflow: "hidden",
@@ -188,7 +181,8 @@ const App = () => {
         >
           <div
             style={{
-              background: "linear-gradient(to right, #2563eb, #1d4ed8)",
+              background:
+                "linear-gradient(to right, var(--color-primary), var(--color-primary-dark))",
               padding: "16px 24px",
             }}
           >
@@ -263,18 +257,21 @@ const App = () => {
                     onClick={() => toggleExpanded(seller.name)}
                     style={{
                       padding: "16px 24px",
-                      borderBottom: "1px solid #e2e8f0",
+                      borderBottom: "1px solid var(--color-border)",
                       cursor: "pointer",
-                      background: isExpanded ? "#f8fafc" : "white",
+                      background: isExpanded
+                        ? "var(--color-bg)"
+                        : "var(--color-surface)",
                       transition: "background 0.2s",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#f8fafc")
+                      (e.currentTarget.style.background =
+                        "var(--color-bg)")
                     }
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.background = isExpanded
-                        ? "#f8fafc"
-                        : "white")
+                        ? "var(--color-bg)"
+                        : "var(--color-surface)")
                     }
                   >
                     <div
@@ -322,10 +319,20 @@ const App = () => {
                           gap: "8px",
                         }}
                       >
-                        <span style={{ fontWeight: "500", color: "#1e293b" }}>
+                        <span
+                          style={{
+                            fontWeight: "500",
+                            color: "var(--color-text)",
+                          }}
+                        >
                           {seller.name}
                         </span>
-                        <span style={{ fontSize: "16px", color: "#94a3b8" }}>
+                        <span
+                          style={{
+                            fontSize: "16px",
+                            color: "var(--color-text-subtle)",
+                          }}
+                        >
                           {isExpanded ? "▲" : "▼"}
                         </span>
                       </div>
@@ -335,7 +342,7 @@ const App = () => {
                             display: "inline-block",
                             padding: "4px 12px",
                             borderRadius: "12px",
-                            background: "#dbeafe",
+                            background: "var(--color-primary-soft)",
                             color: "#1e40af",
                             fontWeight: "600",
                           }}
@@ -347,7 +354,7 @@ const App = () => {
                         style={{
                           textAlign: "right",
                           fontWeight: "600",
-                          color: "#334155",
+                          color: "var(--color-text)",
                         }}
                       >
                         {formatCurrency(seller.totalVolume)}
@@ -356,7 +363,10 @@ const App = () => {
                         style={{
                           textAlign: "right",
                           fontWeight: "600",
-                          color: avgMargin >= 0 ? "#059669" : "#dc2626",
+                          color:
+                            avgMargin >= 0
+                              ? "var(--color-success)"
+                              : "var(--color-danger)",
                         }}
                       >
                         {formatCurrency(avgMargin)}
@@ -368,15 +378,15 @@ const App = () => {
                     <div
                       style={{
                         padding: "16px 24px",
-                        background: "#f8fafc",
-                        borderBottom: "1px solid #e2e8f0",
+                        background: "var(--color-bg)",
+                        borderBottom: "1px solid var(--color-border)",
                       }}
                     >
                       <h3
                         style={{
                           fontWeight: "600",
                           marginBottom: "12px",
-                          color: "#1e293b",
+                          color: "var(--color-text)",
                         }}
                       >
                         Properties ({seller.properties.length})
@@ -394,7 +404,7 @@ const App = () => {
                               key={idx}
                               style={{
                                 padding: "12px",
-                                background: "white",
+                                background: "var(--color-surface)",
                                 borderRadius: "6px",
                                 fontSize: "14px",
                               }}
@@ -402,7 +412,7 @@ const App = () => {
                               <div
                                 style={{
                                   fontWeight: "600",
-                                  color: "#1e293b",
+                                  color: "var(--color-text)",
                                   marginBottom: "8px",
                                 }}
                               >
@@ -422,7 +432,7 @@ const App = () => {
                                     display: "grid",
                                     gridTemplateColumns: "repeat(4, 1fr)",
                                     gap: "8px",
-                                    color: "#64748b",
+                                    color: "var(--color-text-muted)",
                                   }}
                                 >
                                   <div>
@@ -455,8 +465,8 @@ const App = () => {
                                     rel="noopener noreferrer"
                                     style={{
                                       padding: "6px 12px",
-                                      background: "#0074e4",
-                                      color: "white",
+                                      background: "var(--color-accent)",
+                                      color: "var(--color-surface)",
                                       borderRadius: "4px",
                                       textDecoration: "none",
                                       fontSize: "13px",

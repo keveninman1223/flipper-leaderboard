@@ -33,7 +33,8 @@ const HomePage = ({ onSelectLocation }) => {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(to bottom right, #0f172a, #1e293b)",
+        background:
+          "linear-gradient(to bottom right, var(--color-bg-dark), #1e293b)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -49,7 +50,7 @@ const HomePage = ({ onSelectLocation }) => {
       >
         <div
           style={{
-            background: "white",
+            background: "var(--color-surface)",
             padding: "48px 40px",
             borderRadius: "16px",
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
@@ -59,7 +60,7 @@ const HomePage = ({ onSelectLocation }) => {
             style={{
               fontSize: "42px",
               fontWeight: "700",
-              color: "#0f172a",
+              color: "var(--color-text)",
               marginBottom: "12px",
               letterSpacing: "-0.02em",
             }}
@@ -69,7 +70,7 @@ const HomePage = ({ onSelectLocation }) => {
           <p
             style={{
               fontSize: "18px",
-              color: "#64748b",
+              color: "var(--color-text-muted)",
               marginBottom: "40px",
               lineHeight: "1.6",
             }}
@@ -80,13 +81,13 @@ const HomePage = ({ onSelectLocation }) => {
           <div style={{ marginBottom: "24px", textAlign: "left" }}>
             <h2
               style={{
-                fontSize: "15px",
-                fontWeight: "600",
-                color: "#475569",
-                marginBottom: "12px",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
+              fontSize: "15px",
+              fontWeight: "600",
+              color: "var(--color-text-muted)",
+              marginBottom: "12px",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
             >
               Where do you want to see flip activity?
             </h2>
@@ -102,45 +103,27 @@ const HomePage = ({ onSelectLocation }) => {
                   flex: 1,
                   padding: "14px 16px",
                   fontSize: "15px",
-                  border: "2px solid #e2e8f0",
+                  border: "2px solid var(--color-border)",
                   borderRadius: "8px",
                   outline: "none",
                   transition: "all 0.2s",
                   fontFamily: "inherit",
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#2563eb";
+                  e.target.style.borderColor = "var(--color-primary)";
                   e.target.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "#e2e8f0";
+                  e.target.style.borderColor = "var(--color-border)";
                   e.target.style.boxShadow = "none";
                 }}
               />
               <button
+                className="btn btn-primary"
                 onClick={handleSearch}
                 style={{
                   padding: "14px 28px",
-                  background: "#2563eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "15px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
                   whiteSpace: "nowrap",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#1d4ed8";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(37, 99, 235, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "#2563eb";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "none";
                 }}
               >
                 Search
@@ -149,34 +132,34 @@ const HomePage = ({ onSelectLocation }) => {
 
             {error && (
               <div
+              style={{
+                padding: "12px",
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                borderRadius: "6px",
+                marginTop: "12px",
+              }}
+            >
+                <p
                 style={{
-                  padding: "12px",
-                  background: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  borderRadius: "6px",
-                  marginTop: "12px",
+                  color: "var(--color-danger)",
+                  fontSize: "14px",
+                  margin: 0,
                 }}
               >
-                <p
-                  style={{
-                    color: "#dc2626",
-                    fontSize: "14px",
-                    margin: 0,
-                  }}
-                >
-                  {error}
+                {error}
                 </p>
               </div>
             )}
 
             <p
-              style={{
-                fontSize: "13px",
-                color: "#94a3b8",
-                marginTop: "16px",
-                textAlign: "center",
-              }}
-            >
+            style={{
+              fontSize: "13px",
+              color: "var(--color-text-subtle)",
+              marginTop: "16px",
+              textAlign: "center",
+            }}
+          >
               Currently available: <strong>Kern County, Bakersfield</strong>
             </p>
           </div>
