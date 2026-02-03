@@ -1,16 +1,44 @@
-# React + Vite
+# Flipper Leaderboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React app that ranks real estate flippers using data from a public Google Sheet. Users select a location, then view a sortable leaderboard with expandable seller details and property-level info.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Location search/selection (currently Kern County / Bakersfield).
+- Google Sheets data fetch and parsing.
+- Leaderboard grouped by seller with:
+  - Flip count
+  - Total volume
+  - Average margin
+- Sortable columns and expandable rows.
+- Zillow links for each property.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React + Vite
+- Axios
+- Plain CSS with CSS variables and inline styles
 
-## Expanding the ESLint configuration
+## Running Locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```sh
+npm install
+npm run dev
+```
+
+## Project Structure
+
+- `src/main.jsx`: React entry point.
+- `src/App.jsx`: Data fetch + leaderboard UI.
+- `src/HomePage.jsx`: Location search screen.
+- `src/index.css`: CSS variables + base styles.
+- `src/App.css`: Reserved for additional app-specific styles.
+
+## Data Source
+
+The app pulls data from a public Google Sheet using the Google Visualization JSON endpoint. The sheet ID is defined in `src/App.jsx`.
+
+## Notes
+
+- Only a small set of locations is currently supported.
+- The UI is mostly inline styles; global styles live in `src/index.css`.
