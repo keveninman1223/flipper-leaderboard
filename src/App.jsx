@@ -19,75 +19,14 @@ const App = () => {
 
   const fetchSheetData = async () => {
     try {
-      const response = await axios.get(
-        `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`
-      );
+      const response = await axios.get("http://localhost:3001/api/flips");
 
-      const jsonString = response.data.substring(47).slice(0, -2);
-      const json = JSON.parse(jsonString);
-
-      const rows = json.table.rows;
-      const headers = json.table.cols.map((col) => col.label);
-
-      const formattedData = rows.slice(1).map((row) => {
-        const rowData = {};
-        row.c.forEach((cell, index) => {
-          rowData[headers[index]] = cell ? cell.v : null;
-        });
-        return rowData;
-      });
-
-      setData(formattedData);
+      // backend already returns aggregated data
+      setData(response.data.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
-    }
-  };
-
-  const getLeaderboardData = () => {
-    const sellerMap = new Map();
-
-    data.forEach((property) => {
-      const seller = property["Purchase Seller"] || "Unknown";
-
-      if (!sellerMap.has(seller)) {
-        sellerMap.set(seller, {
-          name: seller,
-          properties: [],
-          flipCount: 0,
-          totalVolume: 0,
-          totalMargin: 0,
-        });
-      }
-
-      const sellerData = sellerMap.get(seller);
-      sellerData.properties.push(property);
-      sellerData.flipCount++;
-
-      const salePrice = parseFloat(property["Purchase Amt"]) || 0;
-      const priceChange = parseFloat(property["Purchase Amt Change $"]) || 0;
-      const purchasePrice = salePrice - priceChange;
-
-      sellerData.totalVolume += salePrice;
-      if (salePrice > 0 && purchasePrice > 0) {
-        sellerData.totalMargin += salePrice - purchasePrice;
-      }
-    });
-
-    const sellers = Array.from(sellerMap.values());
-
-    if (sortBy === "volume") {
-      return sellers.sort((a, b) => b.totalVolume - a.totalVolume);
-    } else if (sortBy === "margin") {
-      return sellers.sort((a, b) => {
-        const avgMarginA = a.flipCount > 0 ? a.totalMargin / a.flipCount : 0;
-        const avgMarginB = b.flipCount > 0 ? b.totalMargin / b.flipCount : 0;
-        return avgMarginB - avgMarginA;
-      });
-      return sellers.sort((a, b) => avgMarginB - avgMarginA);
-    } else {
-      return sellers.sort((a, b) => b.flipCount - a.flipCount);
     }
   };
 
@@ -122,7 +61,7 @@ const App = () => {
     );
   }
 
-  const leaderboardData = getLeaderboardData();
+  const leaderboardData = data;
 
   return (
     <div
@@ -265,8 +204,7 @@ const App = () => {
                       transition: "background 0.2s",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background =
-                        "var(--color-bg)")
+                      (e.currentTarget.style.background = "var(--color-bg)")
                     }
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.background = isExpanded
@@ -297,10 +235,10 @@ const App = () => {
                               index === 0
                                 ? "#fbbf24"
                                 : index === 1
-                                ? "#d1d5db"
-                                : index === 2
-                                ? "#f59e0b"
-                                : "#f1f5f9",
+                                  ? "#d1d5db"
+                                  : index === 2
+                                    ? "#f59e0b"
+                                    : "#f1f5f9",
                             color:
                               index < 3
                                 ? index === 1
@@ -457,7 +395,7 @@ const App = () => {
                                 >
                                   <a
                                     href={`https://www.zillow.com/homes/${encodeURIComponent(
-                                      property.Address
+                                      property.Address,
                                     )}-${encodeURIComponent(property.City)}-${
                                       property.State
                                     }-${property.ZIP}_rb/`}
