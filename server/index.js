@@ -302,6 +302,39 @@ app.post("/api/propertyradar/import", async (req, res) => {
   }
 });
 
+app.get("/api/propertyradar/lists", async (req, res) => {
+  const token = process.env.PROPERTY_RADAR_ACCESS_TOKEN;
+  if (!token) {
+    res
+      .status(500)
+      .json({ success: false, error: "PROPERTY_RADAR_ACCESS_TOKEN not set" });
+    return;
+  }
+
+  const url = "https://api.propertyradar.com/v1/lists";
+
+  try {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const rawBody = await response.text();
+    let body = rawBody;
+
+    try {
+      body = JSON.parse(rawBody);
+    } catch (error) {
+      body = rawBody;
+    }
+
+    res.status(response.status).json(body);
+  } catch (error) {
+    res.status(502).json({
+      success: false,
+      error: error.message || "Failed to reach PropertyRadar API",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
