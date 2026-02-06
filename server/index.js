@@ -210,6 +210,98 @@ app.get("/api/db-test", async (req, res) => {
   }
 });
 
+app.post("/api/propertyradar/import", async (req, res) => {
+  const token = process.env.PROPERTY_RADAR_ACCESS_TOKEN;
+  if (!token) {
+    res
+      .status(500)
+      .json({ success: false, error: "PROPERTY_RADAR_ACCESS_TOKEN not set" });
+    return;
+  }
+  if (!process.env.DATABASE_URL) {
+    res.status(500).json({ success: false, error: "DATABASE_URL not set" });
+    return;
+  }
+
+  const listId = req.body?.listId;
+  const limit = Number.isFinite(req.body?.limit) ? req.body.limit : 100;
+  const offset = Number.isFinite(req.body?.offset) ? req.body.offset : 0;
+
+  if (!listId || typeof listId !== "string") {
+    res.status(400).json({ success: false, error: "listId is required" });
+    return;
+  }
+
+  const url = `https://api.propertyradar.com/v1/lists/${encodeURIComponent(
+    listId
+  )}/properties?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(
+    offset
+  )}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      res.status(response.status).json({
+        success: false,
+        error: "PropertyRadar authentication failed",
+      });
+      return;
+    }
+
+    if (!response.ok) {
+      res.status(response.status).json({
+        success: false,
+        error: "PropertyRadar request failed",
+      });
+      return;
+    }
+
+    const data = await response.json();
+    const properties = Array.isArray(data?.properties)
+      ? data.properties
+      : Array.isArray(data?.items)
+      ? data.items
+      : [];
+
+    if (properties.length === 0) {
+      res.status(404).json({
+        success: false,
+        error: "No properties returned",
+        fetched: 0,
+        inserted: 0,
+        offset,
+        nextOffset: offset,
+      });
+      return;
+    }
+
+    let inserted = 0;
+    for (const property of properties) {
+      await pool.query(
+        "INSERT INTO flips_raw (payload) VALUES ($1::jsonb);",
+        [property]
+      );
+      inserted += 1;
+    }
+
+    res.json({
+      success: true,
+      fetched: properties.length,
+      inserted,
+      offset,
+      nextOffset: offset + properties.length,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "PropertyRadar import failed",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
