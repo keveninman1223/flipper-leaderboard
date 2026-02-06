@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import pg from "pg";
 
 dotenv.config();
 
@@ -10,6 +11,14 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
+const { Pool } = pg;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
+});
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
@@ -164,6 +173,39 @@ app.get("/api/propertyradar-test", async (req, res) => {
       success: false,
       status: null,
       error: error.message || "Failed to reach PropertyRadar API",
+    });
+  }
+});
+
+app.get("/api/db-test", async (req, res) => {
+  if (!process.env.DATABASE_URL) {
+    res.status(500).json({ success: false, error: "DATABASE_URL not set" });
+    return;
+  }
+
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS flips_raw (
+      id BIGSERIAL PRIMARY KEY,
+      source TEXT NOT NULL DEFAULT 'propertyradar',
+      payload JSONB NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );`);
+
+    const payload = { hello: "world", ts: new Date().toISOString() };
+    await pool.query(
+      "INSERT INTO flips_raw (payload) VALUES ($1::jsonb);",
+      [payload]
+    );
+
+    const result = await pool.query(
+      "SELECT * FROM flips_raw ORDER BY created_at DESC LIMIT 1;"
+    );
+
+    res.json({ success: true, inserted: true, row: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Database request failed",
     });
   }
 });
