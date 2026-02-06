@@ -19,7 +19,9 @@ const App = () => {
 
   const fetchSheetData = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/flips");
+      const response = await axios.get(
+        "https://flipper-leaderboard.onrender.com/api/flips"
+      );
 
       // backend already returns aggregated data
       setData(response.data.data);
