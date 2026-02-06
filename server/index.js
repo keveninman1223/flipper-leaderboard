@@ -127,6 +127,47 @@ app.get("/api/flips", (req, res) => {
   res.json({ data });
 });
 
+app.get("/api/propertyradar-test", async (req, res) => {
+  const token = process.env.PROPERTY_RADAR_ACCESS_TOKEN;
+  if (!token) {
+    res
+      .status(500)
+      .json({ success: false, error: "PROPERTY_RADAR_ACCESS_TOKEN not set" });
+    return;
+  }
+
+  const url = "https://api.propertyradar.com/v1/accounts/members";
+
+  try {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const rawBody = await response.text();
+    let body = rawBody;
+
+    try {
+      body = JSON.parse(rawBody);
+    } catch (error) {
+      body = rawBody;
+    }
+
+    const bodyPreview =
+      typeof body === "string" ? body.slice(0, 500) : body;
+
+    res.json({
+      success: response.ok,
+      status: response.status,
+      body: bodyPreview,
+    });
+  } catch (error) {
+    res.status(502).json({
+      success: false,
+      status: null,
+      error: error.message || "Failed to reach PropertyRadar API",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
