@@ -232,15 +232,21 @@ app.post("/api/propertyradar/import", async (req, res) => {
     return;
   }
 
-  const url = `https://api.propertyradar.com/v1/lists/${encodeURIComponent(
-    listId
-  )}/properties?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(
-    offset
-  )}`;
+  const url = `https://api.propertyradar.com/v1/properties?Limit=${encodeURIComponent(
+    limit
+  )}&Offset=${encodeURIComponent(offset)}`;
+  const requestBody = {
+    Criteria: [{ name: "InList", value: listId }],
+  };
 
   try {
     const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
     });
 
     if (response.status === 401 || response.status === 403) {
@@ -252,24 +258,22 @@ app.post("/api/propertyradar/import", async (req, res) => {
     }
 
     if (!response.ok) {
+      const errorBody = await response.text();
       res.status(response.status).json({
         success: false,
         error: "PropertyRadar request failed",
+        status: response.status,
+        bodyPreview: errorBody.slice(0, 500),
       });
       return;
     }
 
     const data = await response.json();
-    const properties = Array.isArray(data?.properties)
-      ? data.properties
-      : Array.isArray(data?.items)
-      ? data.items
-      : [];
+    const properties = Array.isArray(data?.results) ? data.results : [];
 
     if (properties.length === 0) {
-      res.status(404).json({
-        success: false,
-        error: "No properties returned",
+      res.json({
+        success: true,
         fetched: 0,
         inserted: 0,
         offset,
