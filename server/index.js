@@ -236,7 +236,14 @@ app.post("/api/propertyradar/import", async (req, res) => {
     limit
   )}&Offset=${encodeURIComponent(offset)}`;
   const requestBody = {
-    Criteria: [{ name: "InList", value: listId }],
+    Criteria: [
+      { name: "InList", value: listId },
+      {
+        name: "PurchaseDate",
+        operator: "Between",
+        value: ["2023-01-01", "2026-12-31"],
+      },
+    ],
   };
 
   try {
