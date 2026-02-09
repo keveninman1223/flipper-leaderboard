@@ -2,8 +2,21 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pg from "pg";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, ".env") });
+
+console.log("BOOT ENV CHECK", {
+  token: !!process.env.PROPERTY_RADAR_ACCESS_TOKEN,
+  db: !!process.env.DATABASE_URL,
+});
+
+
 
 const app = express();
 
@@ -14,11 +27,9 @@ const PORT = process.env.PORT || 3001;
 const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : false,
+  ssl: { rejectUnauthorized: false },
 });
+
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
@@ -138,12 +149,19 @@ app.get("/api/flips", (req, res) => {
 
 app.get("/api/propertyradar-test", async (req, res) => {
   const token = process.env.PROPERTY_RADAR_ACCESS_TOKEN;
-  if (!token) {
-    res
-      .status(500)
-      .json({ success: false, error: "PROPERTY_RADAR_ACCESS_TOKEN not set" });
-    return;
-  }
+
+if (!token) {
+  return res.status(500).json({
+    success: false,
+    error: "PROPERTY_RADAR_ACCESS_TOKEN not set",
+    debug: {
+      hasToken: !!process.env.PROPERTY_RADAR_ACCESS_TOKEN,
+      envKeys: Object.keys(process.env).filter(k =>
+        k.includes("RADAR") || k.includes("DATABASE")
+      )
+    }
+  });
+}
 
   const url = "https://api.propertyradar.com/v1/accounts/members";
 
@@ -212,16 +230,30 @@ app.get("/api/db-test", async (req, res) => {
 
 app.post("/api/propertyradar/import", async (req, res) => {
   const token = process.env.PROPERTY_RADAR_ACCESS_TOKEN;
-  if (!token) {
-    res
-      .status(500)
-      .json({ success: false, error: "PROPERTY_RADAR_ACCESS_TOKEN not set" });
-    return;
-  }
-  if (!process.env.DATABASE_URL) {
-    res.status(500).json({ success: false, error: "DATABASE_URL not set" });
-    return;
-  }
+
+if (!token) {
+  return res.status(500).json({
+    success: false,
+    error: "PROPERTY_RADAR_ACCESS_TOKEN not set",
+    debug: {
+      hasToken: !!process.env.PROPERTY_RADAR_ACCESS_TOKEN,
+      radarEnvKeys: Object.keys(process.env).filter(k =>
+        k.includes("RADAR")
+      ),
+      cwd: process.cwd(),
+    },
+  });
+}
+
+if (!process.env.DATABASE_URL) {
+  return res.status(500).json({
+    success: false,
+    error: "DATABASE_URL not set",
+    debug: {
+      hasDb: !!process.env.DATABASE_URL,
+    },
+  });
+}
 
   const listId = req.body?.listId;
   const limit = Number.isFinite(req.body?.limit) ? req.body.limit : 100;
@@ -232,19 +264,18 @@ app.post("/api/propertyradar/import", async (req, res) => {
     return;
   }
 
-  const url = `https://api.propertyradar.com/v1/properties?Limit=${encodeURIComponent(
-    limit
-  )}&Offset=${encodeURIComponent(offset)}`;
-  const requestBody = {
-    Criteria: [
-      { name: "InList", value: listId },
-      {
-        name: "PurchaseDate",
-        operator: "Between",
-        value: ["2023-01-01", "2026-12-31"],
-      },
-    ],
-  };
+  // ✅ PropertyRadar endpoint (NO limit/offset in query string)
+// PropertyRadar expects Limit + Start as QUERY params (capitalized)
+const url = `https://api.propertyradar.com/v1/properties?Limit=${encodeURIComponent(
+  limit
+)}&Start=${encodeURIComponent(offset)}&Purchase=1`;
+
+// Body should ONLY contain Criteria
+const requestBody = {
+  Criteria: [{ name: "InList", value: [Number(listId)] }],
+};
+
+
 
   try {
     const response = await fetch(url, {
@@ -271,6 +302,7 @@ app.post("/api/propertyradar/import", async (req, res) => {
         error: "PropertyRadar request failed",
         status: response.status,
         bodyPreview: errorBody.slice(0, 500),
+        url,
       });
       return;
     }
